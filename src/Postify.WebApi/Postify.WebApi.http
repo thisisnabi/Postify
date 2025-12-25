@@ -1,0 +1,6 @@
+@Postify.WebApi_HostAddress = http://localhost:5189
+
+GET {{Postify.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

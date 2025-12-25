@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Postify.Modules.Notify.Core\Postify.Modules.Notify.Core.csproj" />
+    <ProjectReference Include="..\Postify.Modules.Notify.Infrastructure\Postify.Modules.Notify.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

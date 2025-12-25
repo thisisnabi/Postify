@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\modules\Postify.Modules.Media\Postify.Modules.Media.csproj" />
+    <ProjectReference Include="..\modules\Postify.Modules.Notify\Postify.Modules.Notify.csproj" />
+    <ProjectReference Include="..\modules\Postify.Modules.Profile\Postify.Modules.Profile.csproj" />
+    <ProjectReference Include="..\modules\Postify.Modules.Proof\Postify.Modules.Proof.csproj" />
+    <ProjectReference Include="..\modules\Postify.Modules.Shortak\Postify.Modules.Shortak.csproj" />
+  </ItemGroup>
+
+</Project>
