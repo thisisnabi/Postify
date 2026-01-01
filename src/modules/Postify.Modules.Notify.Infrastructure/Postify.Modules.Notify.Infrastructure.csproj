@@ -8,6 +8,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Postify.Shared.Infrastructure\Postify.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\Postify.Modules.Notify.Core\Postify.Modules.Notify.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Persistence\EfConfigurations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KavenegarDotNetCore" Version="1.0.7" />
   </ItemGroup>
 
 </Project>
