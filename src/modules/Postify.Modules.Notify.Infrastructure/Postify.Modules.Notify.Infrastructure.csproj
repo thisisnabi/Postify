@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\EfConfigurations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="KavenegarDotNetCore" Version="1.0.7" />
   </ItemGroup>
 

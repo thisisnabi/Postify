@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Postify.Shared.Infrastructure\Postify.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\Postify.Modules.Media.Core\Postify.Modules.Media.Core.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AWSSDK.S3" Version="3.7.310.8" />
+	</ItemGroup>
 
 </Project>
