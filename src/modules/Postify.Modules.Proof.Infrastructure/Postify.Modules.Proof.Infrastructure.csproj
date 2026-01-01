@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Postify.Shared.Infrastructure\Postify.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\Postify.Modules.Proof.Core\Postify.Modules.Proof.Core.csproj" />
   </ItemGroup>
 
 </Project>

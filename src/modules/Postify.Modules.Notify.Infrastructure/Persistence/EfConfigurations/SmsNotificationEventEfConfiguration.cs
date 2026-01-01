@@ -21,6 +21,7 @@ public class SmsNotificationEventEfConfiguration : IEntityTypeConfiguration<SmsN
 
         builder.Property(e => e.EventType)
             .IsRequired()
+            .HasMaxLength(50)
             .HasConversion<string>();
 
         builder.Property(e => e.Text)

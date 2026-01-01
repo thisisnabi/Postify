@@ -35,10 +35,12 @@ public class ObjectFileEfConfiguration : IEntityTypeConfiguration<ObjectFile>
 
         builder.Property(of => of.AccessLevel)
             .HasConversion<string>()
+            .HasMaxLength(50)
             .IsRequired();
 
         builder.Property(of => of.Status)
-            .HasConversion<string>()    
+            .HasConversion<string>()
+            .HasMaxLength(50)
             .IsRequired();
     }
 }

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\shared\Postify.Shared.Infrastructure\Postify.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\Postify.Modules.Shortak.Core\Postify.Modules.Shortak.Core.csproj" />
   </ItemGroup>
 
 </Project>
