@@ -1,21 +1,22 @@
 using FluentAssertions;
-using Postify.Modules.Profile.Core.Application;
+using Postify.Modules.Profile.Core.Application.Commands;
 using Postify.Modules.Profile.Core.Entities;
 using Postify.Modules.Profile.Infrastructure.Persistence;
 using Postify.Profile.Tests.Application.Profiles.TestData;
 using Postify.Profile.Tests.Common.TestHelpers;
+using Postify.Shared.Kernel.Errors;
 
 namespace Postify.Profile.Tests.Application.Profiles;
 
 public class RegisterIndividualProfileTests : IDisposable
 {
     private readonly ProfileDbContext _dbContext;
-    private readonly ProfileService _profileService;
+    private readonly RegisterIndividualProfileCommandHandler _handler;
 
     public RegisterIndividualProfileTests()
     {
         _dbContext = InMemoryProfileDbContextFactory.Create();
-        _profileService = new ProfileService(_dbContext);
+        _handler = new RegisterIndividualProfileCommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -35,11 +36,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("NationalId is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("NationalId is required");
     }
 
     [Fact]
@@ -54,11 +62,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("NationalId must be exactly 11 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("NationalId must be exactly 11 characters");
     }
 
     [Fact]
@@ -73,11 +88,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("FirstName is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("FirstName is required");
     }
 
     [Fact]
@@ -92,11 +114,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("FirstName cannot exceed 50 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("FirstName cannot exceed 50 characters");
     }
 
     [Fact]
@@ -111,11 +140,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("LastName is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("LastName is required");
     }
 
     [Fact]
@@ -130,11 +166,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("LastName cannot exceed 50 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("LastName cannot exceed 50 characters");
     }
 
     [Fact]
@@ -149,11 +192,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("PhoneNumber is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("PhoneNumber is required");
     }
 
     [Fact]
@@ -168,11 +218,18 @@ public class RegisterIndividualProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("PhoneNumber cannot exceed 15 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("PhoneNumber cannot exceed 15 characters");
     }
 
     [Fact]
@@ -192,15 +249,21 @@ public class RegisterIndividualProfileTests : IDisposable
 
         var request = new RegisterIndividualProfileRequestTestData()
             .WithNationalId(nationalId)
-            .WithPhoneNumber(11)
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<InvalidOperationException>();
-        exception.WithMessage($"Profile with NationalId {nationalId} already exists.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Failure);
+        exception.Which.Error.Description.Should().Contain(nationalId);
     }
 
     [Fact]
@@ -209,11 +272,16 @@ public class RegisterIndividualProfileTests : IDisposable
         // Arrange
         var request = new RegisterIndividualProfileRequestTestData()
             .WithNationalId("12345678901")
-            .WithPhoneNumber(11)
             .Create();
 
         // Act
-        var result = await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
@@ -235,11 +303,16 @@ public class RegisterIndividualProfileTests : IDisposable
         // Arrange
         var request = new RegisterIndividualProfileRequestTestData()
             .WithNationalId("12345678901")
-            .WithPhoneNumber(11)
             .Create();
 
         // Act
-        var result = await _profileService.RegisterIndividualProfileAsync(request);
+        var command = new RegisterIndividualProfileCommand(
+            request.NationalId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         var savedProfile = await _dbContext.IndividualProfiles.FindAsync(result.Id);

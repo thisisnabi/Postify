@@ -1,21 +1,22 @@
 using FluentAssertions;
-using Postify.Modules.Profile.Core.Application;
+using Postify.Modules.Profile.Core.Application.Commands;
 using Postify.Modules.Profile.Core.Entities;
 using Postify.Modules.Profile.Infrastructure.Persistence;
 using Postify.Profile.Tests.Application.Profiles.TestData;
 using Postify.Profile.Tests.Common.TestHelpers;
+using Postify.Shared.Kernel.Errors;
 
 namespace Postify.Profile.Tests.Application.Profiles;
 
 public class RegisterCorporateProfileTests : IDisposable
 {
     private readonly ProfileDbContext _dbContext;
-    private readonly ProfileService _profileService;
+    private readonly RegisterCorporateProfileCommandHandler _handler;
 
     public RegisterCorporateProfileTests()
     {
         _dbContext = InMemoryProfileDbContextFactory.Create();
-        _profileService = new ProfileService(_dbContext);
+        _handler = new RegisterCorporateProfileCommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -29,16 +30,20 @@ public class RegisterCorporateProfileTests : IDisposable
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
             .WithNationalId(string.Empty)
-            .WithName(10)
-            .WithEconomicId(10)
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("NationalId is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("NationalId is required");
     }
 
     [Fact]
@@ -47,16 +52,20 @@ public class RegisterCorporateProfileTests : IDisposable
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
             .WithNationalId("123456789012")
-            .WithName(10)
-            .WithEconomicId(10)
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("NationalId must be exactly 11 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("NationalId must be exactly 11 characters");
     }
 
     [Fact]
@@ -64,17 +73,21 @@ public class RegisterCorporateProfileTests : IDisposable
     {
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
-            .WithNationalId("12345678901")
             .WithName(0)
-            .WithEconomicId("1234567890")
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("Name is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("Name is required");
     }
 
     [Fact]
@@ -82,16 +95,21 @@ public class RegisterCorporateProfileTests : IDisposable
     {
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
-            .WithNationalId("12345678901")
             .WithEconomicId(0)
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("EconomicId is required.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("EconomicId is required");
     }
 
     [Fact]
@@ -110,15 +128,20 @@ public class RegisterCorporateProfileTests : IDisposable
 
         var request = new RegisterCorporateProfileRequestTestData()
             .WithNationalId(nationalId)
-            .WithEconomicId("9876543210")
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<InvalidOperationException>();
-        exception.WithMessage($"Profile with NationalId {nationalId} already exists.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Failure);
+        exception.Which.Error.Description.Should().Contain(nationalId);
     }
 
     [Fact]
@@ -136,16 +159,21 @@ public class RegisterCorporateProfileTests : IDisposable
         await _dbContext.SaveChangesAsync();
 
         var request = new RegisterCorporateProfileRequestTestData()
-            .WithNationalId("12345678901")
             .WithEconomicId(economicId)
             .Create();
 
         // Act
-        var func = async () => await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<InvalidOperationException>();
-        exception.WithMessage($"Corporate profile with EconomicId {economicId} already exists.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Failure);
+        exception.Which.Error.Description.Should().Contain(economicId);
     }
 
     [Fact]
@@ -154,11 +182,15 @@ public class RegisterCorporateProfileTests : IDisposable
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
             .WithNationalId("12345678901")
-            .WithEconomicId("1234567890")
             .Create();
 
         // Act
-        var result = await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
@@ -179,11 +211,15 @@ public class RegisterCorporateProfileTests : IDisposable
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
             .WithNationalId("12345678901")
-            .WithEconomicId("1234567890")
             .Create();
 
         // Act
-        var result = await _profileService.RegisterCorporateProfileAsync(request);
+        var command = new RegisterCorporateProfileCommand(
+            request.NationalId,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         var savedProfile = await _dbContext.CorporateProfiles.FindAsync(result.Id);

@@ -1,9 +1,10 @@
 using FluentValidation;
-using Postify.Modules.Profile.Core.Common.Validators;
+using Postify.Modules.Profile.Core.Payloads;
+using Postify.Modules.Profile.Validators;
 
-namespace Postify.Modules.Profile.Core.Payloads.Validators;
+namespace Postify.Modules.Profile.Validators;
 
-internal class RegisterCorporateProfileRequestValidator : BaseValidator<RegisterCorporateProfileRequest>
+public class RegisterCorporateProfileRequestValidator : BaseValidator<RegisterCorporateProfileRequest>
 {
     public RegisterCorporateProfileRequestValidator()
     {

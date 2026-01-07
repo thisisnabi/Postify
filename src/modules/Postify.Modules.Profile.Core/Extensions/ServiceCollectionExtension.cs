@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postify.Modules.Profile.Core.Application.Commands;
 
 namespace Postify.Modules.Profile.Core.Extensions;
 
@@ -11,8 +7,9 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddProfileCore(this IServiceCollection services)
     {
-
-
+        services.AddScoped<RegisterIndividualProfileCommandHandler>();
+        services.AddScoped<RegisterCorporateProfileCommandHandler>();
+        services.AddScoped<UpdateProfileCommandHandler>();
 
         return services;
     }

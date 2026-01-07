@@ -1,21 +1,22 @@
 using FluentAssertions;
-using Postify.Modules.Profile.Core.Application;
+using Postify.Modules.Profile.Core.Application.Commands;
 using Postify.Modules.Profile.Core.Entities;
 using Postify.Modules.Profile.Infrastructure.Persistence;
 using Postify.Profile.Tests.Application.Profiles.TestData;
 using Postify.Profile.Tests.Common.TestHelpers;
+using Postify.Shared.Kernel.Errors;
 
 namespace Postify.Profile.Tests.Application.Profiles;
 
 public class UpdateProfileTests : IDisposable
 {
     private readonly ProfileDbContext _dbContext;
-    private readonly ProfileService _profileService;
+    private readonly UpdateProfileCommandHandler _handler;
 
     public UpdateProfileTests()
     {
         _dbContext = InMemoryProfileDbContextFactory.Create();
-        _profileService = new ProfileService(_dbContext);
+        _handler = new UpdateProfileCommandHandler(_dbContext);
     }
 
     public void Dispose()
@@ -32,11 +33,20 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.UpdateProfileAsync(profileId, request);
+        var command = new UpdateProfileCommand(
+            profileId,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<InvalidOperationException>();
-        exception.WithMessage($"Profile with Id {profileId} not found.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.NotFound);
+        exception.Which.Error.Description.Should().Contain(profileId.ToString());
     }
 
     [Fact]
@@ -58,11 +68,20 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("FirstName cannot exceed 50 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("FirstName cannot exceed 50 characters");
     }
 
     [Fact]
@@ -84,11 +103,20 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("LastName cannot exceed 50 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("LastName cannot exceed 50 characters");
     }
 
     [Fact]
@@ -110,11 +138,20 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("PhoneNumber cannot exceed 15 characters.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Validation);
+        exception.Which.Error.Description.Should().Contain("PhoneNumber cannot exceed 15 characters");
     }
 
     [Fact]
@@ -144,11 +181,20 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var func = async () => await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var func = async () => await _handler.HandleAsync(command);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<InvalidOperationException>();
-        exception.WithMessage($"Corporate profile with EconomicId {economicId} already exists.");
+        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        exception.Which.Error.Type.Should().Be(ErrorType.Failure);
+        exception.Which.Error.Description.Should().Contain(economicId);
     }
 
     [Fact]
@@ -169,7 +215,15 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var result = await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
@@ -202,7 +256,15 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var result = await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
@@ -237,7 +299,15 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var result = await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
@@ -266,7 +336,15 @@ public class UpdateProfileTests : IDisposable
             .Create();
 
         // Act
-        var result = await _profileService.UpdateProfileAsync(existingProfile.Id, request);
+        var command = new UpdateProfileCommand(
+            existingProfile.Id,
+            request.FirstName,
+            request.LastName,
+            request.PhoneNumber,
+            request.Name,
+            request.EconomicId
+        );
+        var result = await _handler.HandleAsync(command);
 
         // Assert
         result.Should().NotBeNull();
