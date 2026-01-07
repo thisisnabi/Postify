@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\modules\Postify.Modules.Profile.Core\Postify.Modules.Profile.Core.csproj" />
     <ProjectReference Include="..\..\src\modules\Postify.Modules.Profile.Infrastructure\Postify.Modules.Profile.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\modules\Postify.Modules.Profile\Postify.Modules.Profile.csproj" />
   </ItemGroup>
 
   <ItemGroup>

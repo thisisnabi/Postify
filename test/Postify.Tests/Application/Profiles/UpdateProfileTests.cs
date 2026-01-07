@@ -2,6 +2,8 @@ using FluentAssertions;
 using Postify.Modules.Profile.Core.Application.Commands;
 using Postify.Modules.Profile.Core.Entities;
 using Postify.Modules.Profile.Infrastructure.Persistence;
+using Postify.Modules.Profile.Helpers;
+using Postify.Modules.Profile.Validators;
 using Postify.Profile.Tests.Application.Profiles.TestData;
 using Postify.Profile.Tests.Common.TestHelpers;
 using Postify.Shared.Kernel.Errors;
@@ -12,11 +14,13 @@ public class UpdateProfileTests : IDisposable
 {
     private readonly ProfileDbContext _dbContext;
     private readonly UpdateProfileCommandHandler _handler;
+    private readonly UpdateProfileRequestValidator _validator;
 
     public UpdateProfileTests()
     {
         _dbContext = InMemoryProfileDbContextFactory.Create();
         _handler = new UpdateProfileCommandHandler(_dbContext);
+        _validator = new UpdateProfileRequestValidator();
     }
 
     public void Dispose()
@@ -53,33 +57,15 @@ public class UpdateProfileTests : IDisposable
     public async Task lengthy_first_name_returns_error_message()
     {
         // Arrange
-        var existingProfile = new IndividualProfile
-        {
-            NationalId = "12345678901",
-            FirstName = "Existing",
-            LastName = "User",
-            PhoneNumber = "09123456789"
-        };
-        _dbContext.IndividualProfiles.Add(existingProfile);
-        await _dbContext.SaveChangesAsync();
-
         var request = new UpdateProfileRequestTestData()
             .WithFirstName(51)
             .Create();
 
         // Act
-        var command = new UpdateProfileCommand(
-            existingProfile.Id,
-            request.FirstName,
-            request.LastName,
-            request.PhoneNumber,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
         exception.Which.Error.Description.Should().Contain("FirstName cannot exceed 50 characters");
     }
@@ -88,68 +74,32 @@ public class UpdateProfileTests : IDisposable
     public async Task lengthy_last_name_returns_error_message()
     {
         // Arrange
-        var existingProfile = new IndividualProfile
-        {
-            NationalId = "12345678901",
-            FirstName = "Existing",
-            LastName = "User",
-            PhoneNumber = "09123456789"
-        };
-        _dbContext.IndividualProfiles.Add(existingProfile);
-        await _dbContext.SaveChangesAsync();
-
         var request = new UpdateProfileRequestTestData()
             .WithLastName(51)
             .Create();
 
         // Act
-        var command = new UpdateProfileCommand(
-            existingProfile.Id,
-            request.FirstName,
-            request.LastName,
-            request.PhoneNumber,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
-        exception.Which.Error.Description.Should().Contain("LastName cannot exceed 50 characters");
+        exception.Which.Error.Description.Should().Contain("LastName cannot exceed 50 characters.");
     }
 
     [Fact]
     public async Task lengthy_phone_number_returns_error_message()
     {
         // Arrange
-        var existingProfile = new IndividualProfile
-        {
-            NationalId = "12345678901",
-            FirstName = "Existing",
-            LastName = "User",
-            PhoneNumber = "09123456789"
-        };
-        _dbContext.IndividualProfiles.Add(existingProfile);
-        await _dbContext.SaveChangesAsync();
-
         var request = new UpdateProfileRequestTestData()
             .WithPhoneNumber(16)
             .Create();
 
         // Act
-        var command = new UpdateProfileCommand(
-            existingProfile.Id,
-            request.FirstName,
-            request.LastName,
-            request.PhoneNumber,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
         exception.Which.Error.Description.Should().Contain("PhoneNumber cannot exceed 15 characters");
     }

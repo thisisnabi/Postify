@@ -2,6 +2,8 @@ using FluentAssertions;
 using Postify.Modules.Profile.Core.Application.Commands;
 using Postify.Modules.Profile.Core.Entities;
 using Postify.Modules.Profile.Infrastructure.Persistence;
+using Postify.Modules.Profile.Helpers;
+using Postify.Modules.Profile.Validators;
 using Postify.Profile.Tests.Application.Profiles.TestData;
 using Postify.Profile.Tests.Common.TestHelpers;
 using Postify.Shared.Kernel.Errors;
@@ -12,11 +14,13 @@ public class RegisterCorporateProfileTests : IDisposable
 {
     private readonly ProfileDbContext _dbContext;
     private readonly RegisterCorporateProfileCommandHandler _handler;
+    private readonly RegisterCorporateProfileRequestValidator _validator;
 
     public RegisterCorporateProfileTests()
     {
         _dbContext = InMemoryProfileDbContextFactory.Create();
         _handler = new RegisterCorporateProfileCommandHandler(_dbContext);
+        _validator = new RegisterCorporateProfileRequestValidator();
     }
 
     public void Dispose()
@@ -33,17 +37,12 @@ public class RegisterCorporateProfileTests : IDisposable
             .Create();
 
         // Act
-        var command = new RegisterCorporateProfileCommand(
-            request.NationalId,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
-        exception.Which.Error.Description.Should().Contain("NationalId is required");
+        exception.Which.Error.Description.Should().Contain("NationalId is required.");
     }
 
     [Fact]
@@ -55,15 +54,10 @@ public class RegisterCorporateProfileTests : IDisposable
             .Create();
 
         // Act
-        var command = new RegisterCorporateProfileCommand(
-            request.NationalId,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
         exception.Which.Error.Description.Should().Contain("NationalId must be exactly 11 characters");
     }
@@ -73,21 +67,18 @@ public class RegisterCorporateProfileTests : IDisposable
     {
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
+            .WithNationalId("12345678901") // ensure NationalId is valid so Name validation is first
+            .WithEconomicId("123") // ensure EconomicId is valid
             .WithName(0)
             .Create();
 
         // Act
-        var command = new RegisterCorporateProfileCommand(
-            request.NationalId,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
-        exception.Which.Error.Description.Should().Contain("Name is required");
+        exception.Which.Error.Description.Should().Contain("Name is required.");
     }
 
     [Fact]
@@ -95,21 +86,18 @@ public class RegisterCorporateProfileTests : IDisposable
     {
         // Arrange
         var request = new RegisterCorporateProfileRequestTestData()
+            .WithNationalId("12345678901") // ensure NationalId is valid so EconomicId validation is first
+            .WithName(5) // ensure Name is valid
             .WithEconomicId(0)
             .Create();
 
         // Act
-        var command = new RegisterCorporateProfileCommand(
-            request.NationalId,
-            request.Name,
-            request.EconomicId
-        );
-        var func = async () => await _handler.HandleAsync(command);
+        var func = () => ValidationHelper.ValidateAndThrow(_validator, request);
 
         // Assert
-        var exception = await func.Should().ThrowAsync<ServiceErrorException>();
+        var exception = func.Should().Throw<ServiceErrorException>();
         exception.Which.Error.Type.Should().Be(ErrorType.Validation);
-        exception.Which.Error.Description.Should().Contain("EconomicId is required");
+        exception.Which.Error.Description.Should().Contain("EconomicId is required.");
     }
 
     [Fact]
