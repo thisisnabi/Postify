@@ -23,5 +23,12 @@ internal class IndividualProfileEfConfiguration : IEntityTypeConfiguration<Indiv
                .IsRequired()
                .HasMaxLength(15)
                .IsUnicode(false);
+
+        builder.Ignore(x => x.FullName);
+
+        builder.HasMany(x => x.CorporateProfiles)
+               .WithOne(x => x.Owner)
+               .HasForeignKey(x => x.OwnerId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

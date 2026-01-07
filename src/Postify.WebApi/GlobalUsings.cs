@@ -7,3 +7,4 @@ global using Postify.Modules.Shortak;
 
 
 // application
+global using Postify.Shared.Kernel;

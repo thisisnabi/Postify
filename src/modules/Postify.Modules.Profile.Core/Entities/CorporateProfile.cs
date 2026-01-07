@@ -5,4 +5,7 @@ public class CorporateProfile : ProfileBase
     public required string Name { get; set; }
 
     public required string EconomicId { get; set; }
+
+    public long OwnerId { get; set; }
+    public IndividualProfile Owner { get; set; } = null!;
 }

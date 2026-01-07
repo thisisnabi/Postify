@@ -8,9 +8,11 @@ builder.Services.AddShortakModule(builder.Configuration);
 
 builder.Services.AddControllers();
 
+builder.Services.Configure<AppSettings>(builder.Configuration);
+
 var app = builder.Build();
  
 app.MapControllers();
 
 app.Run();
- 
+

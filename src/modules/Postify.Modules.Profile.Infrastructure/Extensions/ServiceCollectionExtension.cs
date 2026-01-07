@@ -10,7 +10,7 @@ public static class ServiceCollectionExtension
     {
         services.AddDbContext<ProfileDbContext>(options =>
         {
-            var connectionString = configuration.GetConnectionString("ProfileDatabase");
+            var connectionString = configuration.GetConnectionString("Profile");
             options.UseSqlServer(connectionString);
         });
          
