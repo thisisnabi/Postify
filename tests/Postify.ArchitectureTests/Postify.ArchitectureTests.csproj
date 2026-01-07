@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- <ProjectReference Include="..\..\src\Postify.WebApi\Postify.WebApi.csproj" /> -->
+    <ProjectReference Include="..\..\src\Postify.WebApi\Postify.WebApi.csproj" />
     <ProjectReference Include="..\..\src\modules\Postify.Modules.Shortak\Postify.Modules.Shortak.csproj" />
     <ProjectReference Include="..\..\src\modules\Postify.Modules.Profile.Core\Postify.Modules.Profile.Core.csproj" />
     <ProjectReference Include="..\..\src\modules\Postify.Modules.Proof.Infrastructure\Postify.Modules.Proof.Infrastructure.csproj" />

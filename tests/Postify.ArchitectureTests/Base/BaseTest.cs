@@ -21,6 +21,8 @@ public abstract class BaseTest
     protected static readonly Assembly ProofEntryAssembly = typeof(Postify.Modules.Proof.ModuleExtensions).Assembly;
     protected static readonly Assembly ShortakEntryAssembly = typeof(Postify.Modules.Shortak.ModuleExtensions).Assembly;
     
+    protected static readonly Assembly WebApiAssembly = typeof(Postify.WebApi.WebApiMarker).Assembly;
+
     protected static readonly string[] ModuleNames = { "Profile", "Media", "Notify", "Proof", "Shortak" };
 
     public static TheoryData<string> GetModuleNames()

@@ -4,7 +4,7 @@ using Postify.ArchitectureTests.Base;
 
 namespace Postify.ArchitectureTests.Modules;
 
-public class ModuleDependencyTests : BaseTest
+public class ModuleIsolationTests : BaseTest
 {
     [Theory]
     [MemberData(nameof(GetModuleNames), MemberType = typeof(BaseTest))]
@@ -30,7 +30,6 @@ public class ModuleDependencyTests : BaseTest
             {
                 foreach (var failingClass in result.FailingTypeNames)
                 {
-                    // گزارش: نشت بیزینس به همسایه
                     violations.Add($"   - Class [{failingClass}] illegally touches Module [{otherModule}]");
                 }
             }
