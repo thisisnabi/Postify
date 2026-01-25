@@ -4,7 +4,7 @@ using Postify.Modules.Shortak.Core.Entities;
 using Postify.Shared.Infrastructure.Persistence;
 
 namespace Postify.Modules.Shortak.Infrastructure.Persistence;
-public class ShortakDbContext : ModuleDbContext, IShortakDbContext
+internal class ShortakDbContext : ModuleDbContext, IShortakDbContext
 {
     public DbSet<ShortUrl> ShortUrls { get; set; }
 

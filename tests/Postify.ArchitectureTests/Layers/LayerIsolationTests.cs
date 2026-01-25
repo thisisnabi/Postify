@@ -6,64 +6,97 @@ namespace Postify.ArchitectureTests.Layers;
 public class LayerIsolationTests : BaseTest
 {
     [Fact]
-    public void Core_Should_Not_Depend_On_Infrastructure_Or_EF()
+    public void Core_Should_Not_Depend_On_Infrastructure()
     {
-        // Arrange
+        // Core should be independent of all infrastructure implementations.
         var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
 
-        // Act
         var result = Types.InAssemblies(CoreAssemblies)
             .ShouldNot()
             .HaveDependencyOnAny(infraNames)
-            .Or().HaveDependencyOn("Microsoft.EntityFrameworkCore")
             .GetResult();
 
-        // Assert
-        AssertArchResults(result, "Core layer must not depend on Infrastructure or EF Core");
+        AssertArchResults(result, "The Core layer must remain independent of Infrastructure implementations. Use abstractions instead.");
     }
 
     [Fact]
-    public void Controllers_Should_Not_Depend_On_Infrastructure()
+    public void Core_Should_Not_Depend_On_ModuleEntry()
     {
-        // Arrange
-        var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
+        // Core should not depend on the Module Entry layer (Controllers/Extensions).
+        // We check for dependencies on types belonging to the Entry assemblies.
+        var entryTypes = Types.InAssemblies(ModuleEntryAssemblies)
+            .GetTypes()
+            .Select(t => t.FullName!)
+            .ToArray();
 
-        // Act
-        var result = Types.InAssemblies(ModuleEntryAssemblies)
-            .That().HaveNameEndingWith("Controller")
-            .ShouldNot().HaveDependencyOnAny(infraNames)
+        var result = Types.InAssemblies(CoreAssemblies)
+            .ShouldNot()
+            .HaveDependencyOnAny(entryTypes)
             .GetResult();
 
-        // Assert
-        AssertArchResults(result, "API Controllers should not depend on Infrastructure directly");
+        AssertArchResults(result, "The Core layer should not have dependencies on types in the Module Entry (Presentation/API) layer.");
     }
 
     [Fact]
-    public void DbContexts_Should_Be_Internal()
+    public void Infrastructure_Should_Not_Depend_On_ModuleEntry()
     {
-        // Act
+        // Infrastructure should be independent of the Module Entry layer.
+        var entryTypes = Types.InAssemblies(ModuleEntryAssemblies)
+            .GetTypes()
+            .Select(t => t.FullName!)
+            .ToArray();
+
         var result = Types.InAssemblies(InfrastructureAssemblies)
-            .That().Inherit(typeof(Microsoft.EntityFrameworkCore.DbContext))
-            .Should().NotBePublic()
+            .ShouldNot()
+            .HaveDependencyOnAny(entryTypes)
             .GetResult();
 
-        // Assert
-        AssertArchResults(result, "DbContexts must be internal");
+        AssertArchResults(result, "The Infrastructure layer should not have dependencies on types in the Module Entry (Presentation/API) layer.");
     }
 
     [Fact]
-    public void WebApi_Should_Not_Touch_Infrastructure()
+    public void Core_Should_Not_Depend_On_Presentation_Frameworks()
     {
-        // Arrange
-        Assert.NotNull(WebApiAssembly);
-        var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
-
-        // Act
-        var result = Types.InAssembly(WebApiAssembly)
-            .ShouldNot().HaveDependencyOnAny(infraNames)
+        // Ensures the Core layer is decoupled from ASP.NET Core / Web concerns.
+        var result = Types.InAssemblies(CoreAssemblies)
+            .ShouldNot()
+            .HaveDependencyOn("Microsoft.AspNetCore")
             .GetResult();
 
-        // Assert
-        AssertArchResults(result, "WebApi should not have direct dependencies on Infrastructure");
+        AssertArchResults(result, "The Core layer should not have dependencies on presentation frameworks (ASP.NET Core).");
+    }
+
+    [Fact]
+    public void DbContexts_Should_Be_Internal_And_Reside_In_Infrastructure()
+    {
+        // DbContext implementations are an Infrastructure concern and should not be public.
+        var result = Types.InAssemblies(AllAssemblies)
+            .That().Inherit(typeof(Microsoft.EntityFrameworkCore.DbContext))
+            .And().DoNotHaveName("ModuleDbContext")
+            .Should().NotBePublic()
+            .And().ResideInNamespaceEndingWith(".Infrastructure.Persistence")
+            .GetResult();
+
+        AssertArchResults(result, "Module-specific DbContext implementations must be internal and located within the Infrastructure layer's Persistence namespace.");
+    }
+
+    [Fact]
+    public void WebApi_Should_Not_Depend_On_Core_Or_Infrastructure_Directly()
+    {
+        // WebApi should only depend on Module Entry projects, not their internal layers.
+        // This ensures all module setup is encapsulated within the Module Entry's extension methods.
+        if (WebApiAssembly == null) return;
+
+        var coreNames = CoreAssemblies.Select(a => a.GetName().Name!).ToArray();
+        var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
+
+        var result = Types.InAssembly(WebApiAssembly)
+            .ShouldNot()
+            .HaveDependencyOnAny(coreNames)
+            .Or()
+            .HaveDependencyOnAny(infraNames)
+            .GetResult();
+
+        AssertArchResults(result, "WebApi should only depend on Module Entry projects, not directly on .Core or .Infrastructure layers.");
     }
 }

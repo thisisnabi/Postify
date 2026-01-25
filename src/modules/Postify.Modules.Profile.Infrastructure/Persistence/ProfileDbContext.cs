@@ -5,7 +5,7 @@ using Postify.Shared.Infrastructure.Persistence;
 
 namespace Postify.Modules.Profile.Infrastructure.Persistence;
 
-public class ProfileDbContext : ModuleDbContext, IProfileDbContext
+internal class ProfileDbContext : ModuleDbContext, IProfileDbContext
 {
     protected override string Schema => "Profile";
 

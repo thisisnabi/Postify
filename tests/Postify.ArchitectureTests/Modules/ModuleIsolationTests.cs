@@ -16,12 +16,7 @@ public class ModuleIsolationTests : BaseTest
 
         var otherModuleNames = ModuleNames
             .Where(m => m != moduleName)
-            .SelectMany(m => new[] 
-            { 
-                $"Postify.Modules.{m}",
-                $"Postify.Modules.{m}.Core",
-                $"Postify.Modules.{m}.Infrastructure"
-            })
+            .Select(m => $"Postify.Modules.{m}")
             .ToArray();
 
         // Act
