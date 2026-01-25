@@ -9,11 +9,15 @@ public class LayerIsolationTests : BaseTest
     public void Core_Should_Not_Depend_On_Infrastructure()
     {
         // Core should be independent of all infrastructure implementations.
+        // While the .NET compiler prevents circular dependencies between module-specific 
+        // Core and Infrastructure projects, this test ensures Core remains independent 
+        // of Shared Infrastructure components.
         var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
 
         var result = Types.InAssemblies(CoreAssemblies)
             .ShouldNot()
             .HaveDependencyOnAny(infraNames)
+            // .HaveDependencyOn("Postify.Shared.Infrastructure")
             .GetResult();
 
         AssertArchResults(result, "The Core layer must remain independent of Infrastructure implementations. Use abstractions instead.");
@@ -70,6 +74,7 @@ public class LayerIsolationTests : BaseTest
     public void DbContexts_Should_Be_Internal_And_Reside_In_Infrastructure()
     {
         // DbContext implementations are an Infrastructure concern and should not be public.
+        // We exclude the shared base class 'ModuleDbContext' which must be public for inheritance across assemblies.
         var result = Types.InAssemblies(AllAssemblies)
             .That().Inherit(typeof(Microsoft.EntityFrameworkCore.DbContext))
             .And().DoNotHaveName("ModuleDbContext")

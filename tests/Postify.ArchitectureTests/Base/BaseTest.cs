@@ -75,6 +75,7 @@ public abstract class BaseTest
             
             Failing Classes:
             {string.Join(Environment.NewLine, failingTypes.Select(t => $" - {t}"))}
+            ----------------------
             """;
 
         Assert.True(result.IsSuccessful, message);
