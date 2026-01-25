@@ -1,4 +1,3 @@
-using System.Reflection;
 using NetArchTest.Rules;
 using Postify.ArchitectureTests.Base;
 
@@ -8,36 +7,30 @@ public class ModuleIsolationTests : BaseTest
 {
     [Theory]
     [MemberData(nameof(GetModuleNames), MemberType = typeof(BaseTest))]
-    public void Module_ShouldBe_Isolated_From_Other_Modules(string moduleName)
+    public void Module_Should_Be_Isolated_From_Other_Modules(string moduleName)
     {
+        // Arrange
         var currentModuleAssemblies = AllAssemblies
             .Where(a => a.GetName().Name!.Contains($".Modules.{moduleName}"))
-            .ToList();
+            .ToArray();
 
-        var otherModuleNames = ModuleNames.Where(m => m != moduleName).ToList();
-        var violations = new List<string>();
+        var otherModuleNames = ModuleNames
+            .Where(m => m != moduleName)
+            .SelectMany(m => new[] 
+            { 
+                $"Postify.Modules.{m}",
+                $"Postify.Modules.{m}.Core",
+                $"Postify.Modules.{m}.Infrastructure"
+            })
+            .ToArray();
 
-        foreach (var otherModule in otherModuleNames)
-        {
-            var targetNamespace = $"Postify.Modules.{otherModule}";
-            
-            var result = Types.InAssemblies(currentModuleAssemblies)
-                .ShouldNot()
-                .HaveDependencyOn(targetNamespace)
-                .GetResult();
+        // Act
+        var result = Types.InAssemblies(currentModuleAssemblies)
+            .ShouldNot()
+            .HaveDependencyOnAny(otherModuleNames)
+            .GetResult();
 
-            if (!result.IsSuccessful && result.FailingTypeNames != null)
-            {
-                foreach (var failingClass in result.FailingTypeNames)
-                {
-                    violations.Add($"   - Class [{failingClass}] illegally touches Module [{otherModule}]");
-                }
-            }
-        }
-
-        Assert.True(violations.Count == 0, 
-            $"Modular Monolith Violation in [{moduleName}]:\n" + 
-            "Modules must be isolated from each other. Use Pub/Sub or MediatR for communication.\n" +
-            string.Join("\n", violations));
+        // Assert
+        AssertArchResults(result, $"Module '{moduleName}' should not depend on other modules directly");
     }
 }
