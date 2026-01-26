@@ -4,7 +4,7 @@ using Postify.Modules.Proof.Core.Entities;
 using Postify.Shared.Infrastructure.Persistence;
 
 namespace Postify.Modules.Proof.Infrastructure.Persistence;
-public class ProofDbContext : ModuleDbContext, IProofDbContext
+internal class ProofDbContext : ModuleDbContext, IProofDbContext
 {
     public DbSet<MessageProof> MessageProofs { get; set; }
 

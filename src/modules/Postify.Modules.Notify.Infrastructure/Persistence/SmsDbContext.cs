@@ -5,7 +5,7 @@ using Postify.Shared.Infrastructure.Persistence;
 
 namespace Postify.Modules.Notify.Infrastructure.Persistence;
 
-public class SmsDbContext : ModuleDbContext, ISmsDbContext
+internal class SmsDbContext : ModuleDbContext, ISmsDbContext
 {
     protected override string Schema => "sms";
 

@@ -4,7 +4,7 @@ using Postify.Modules.Media.Core.Entities;
 using Postify.Shared.Infrastructure.Persistence;
 
 namespace Postify.Modules.Media.Infrastructure.Persistence;
-public class MediaDbContext : ModuleDbContext, IMediaDbContext
+internal class MediaDbContext : ModuleDbContext, IMediaDbContext
 {
     public DbSet<ObjectFile> ObjectFiles { get; set; }
 
