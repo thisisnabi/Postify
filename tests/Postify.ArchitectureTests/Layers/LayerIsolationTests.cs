@@ -75,7 +75,7 @@ public class LayerIsolationTests : BaseTest
             .Should().NotBePublic()
             .And().ResideInNamespaceEndingWith(".Infrastructure.Persistence")
             .GetResult();
-
+    
         AssertArchResults(result, "Module-specific DbContext implementations must be internal and located within the Infrastructure layer's Persistence namespace.");
     }
 
