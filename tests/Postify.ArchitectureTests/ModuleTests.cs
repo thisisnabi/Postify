@@ -1,7 +1,6 @@
 using NetArchTest.Rules;
-using Postify.ArchitectureTests.Base;
 
-namespace Postify.ArchitectureTests.Modules;
+namespace Postify.ArchitectureTests;
 
 public class ModuleIsolationTests : BaseTest
 {

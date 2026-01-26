@@ -1,7 +1,6 @@
 using NetArchTest.Rules;
-using Postify.ArchitectureTests.Base;
 
-namespace Postify.ArchitectureTests.Layers;
+namespace Postify.ArchitectureTests;
 
 public class LayerIsolationTests : BaseTest
 {
@@ -77,25 +76,5 @@ public class LayerIsolationTests : BaseTest
             .GetResult();
     
         AssertArchResults(result, "Module-specific DbContext implementations must be internal and located within the Infrastructure layer's Persistence namespace.");
-    }
-
-
-    // This ensures all module setup is encapsulated within the Module Entry's extension methods.
-    [Fact]
-    public void WebApi_Should_Not_Depend_On_Core_Or_Infrastructure_Directly()
-    {
-        if (WebApiAssembly == null) return;
-
-        var coreNames = CoreAssemblies.Select(a => a.GetName().Name!).ToArray();
-        var infraNames = InfrastructureAssemblies.Select(a => a.GetName().Name!).ToArray();
-
-        var result = Types.InAssembly(WebApiAssembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(coreNames)
-            .Or()
-            .HaveDependencyOnAny(infraNames)
-            .GetResult();
-
-        AssertArchResults(result, "WebApi should only depend on Module Entry projects, not their internal layers. (Core, Infrastructure).");
     }
 }

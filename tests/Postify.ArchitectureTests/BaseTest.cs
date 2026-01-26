@@ -1,7 +1,7 @@
 using System.Reflection;
 using NetArchTest.Rules;
 
-namespace Postify.ArchitectureTests.Base;
+namespace Postify.ArchitectureTests;
 
 public abstract class BaseTest
 {
@@ -13,7 +13,6 @@ public abstract class BaseTest
         var path = AppDomain.CurrentDomain.BaseDirectory;
         
         return Directory.GetFiles(path, "Postify.*.dll")
-            .Where(file => !Path.GetFileName(file).Contains(".ArchitectureTests")) // Exclude self
             .Select(file =>
             {
                 try { return Assembly.LoadFrom(file); }
@@ -23,6 +22,10 @@ public abstract class BaseTest
             .Distinct()
             .ToArray();
     }
+
+    protected static readonly Assembly[] SharedAssemblies = AllAssemblies
+        .Where(a => a.GetName().Name?.Contains(".Shared.") == true)
+        .ToArray();
 
     protected static readonly Assembly[] CoreAssemblies = AllAssemblies
         .Where(a => a.GetName().Name?.EndsWith(".Core") == true)
